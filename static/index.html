@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      #chat-container {
+        width: 400px;
+        margin: auto;
+        border: 1px solid #ddd;
+        padding: 20px;
+      }
+      #messages {
+        height: 300px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+      .message {
+        margin-bottom: 20px;
+      }
+      .user {
+        color: blue;
+      }
+      .bot {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-container">
+      <div id="messages"></div>
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Say something..."
+        autofocus
+      />
+      <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+      document.getElementById("send-btn").onclick = function () {
+        const userInput = document.getElementById("user-input");
+        const inputText = userInput.value;
+        if (!inputText) return;
+
+        addMessage("user", inputText);
+        userInput.value = ""; // Clear input field
+
+        fetch("/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({input: inputText}),
+        })
+          .then((response) => response.json())
+          .then((data) => addMessage("bot", data.response))
+          .catch((error) => console.error("Error:", error));
+      };
+
+      function addMessage(sender, text) {
+        const messagesContainer = document.getElementById("messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender);
+        messageDiv.textContent = text;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to the bottom
+      }
+    </script>
+  </body>
+</html>
